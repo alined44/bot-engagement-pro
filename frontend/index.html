@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bot Engagement Stratégique - Pro</title>
+    <script src="https://js.stripe.com/v3/"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #f5f5f5;
+            color: #1a1a1a;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 2rem 1rem;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 0.5rem;
+        }
+
+        .header p {
+            color: #666;
+        }
+
+        /* Auth Screen */
+        .auth-screen {
+            max-width: 400px;
+            margin: 3rem auto;
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            border: 1px solid #e0e0e0;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            font-size: 14px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #2563eb;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 0.75rem;
+            background: #2563eb;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: background 0.2s;
+        }
+
+        .btn:hover {
+            background: #1d4ed8;
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .toggle-auth {
+            text-align: center;
+            margin-top: 1rem;
+            font-size: 14px;
+        }
+
+        .toggle-auth button {
+            background: none;
+            border: none;
+            color: #2563eb;
+            cursor: pointer;
+            text-decoration: underline;
+        }
+
+        /* App Screen */
+        .app-screen {
+            display: none;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 2rem;
+            border-bottom: 1px solid #e0e0e0;
+            flex-wrap: wrap;
+        }
+
+        .tab-btn {
+            padding: 1rem;
+            border: none;
+            background: transparent;
+            color: #666;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s;
+        }
+
+        .tab-btn.active {
+            color: #2563eb;
+            border-bottom-color: #2563eb;
+        }
+
+        .tab-content {
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 2rem;
+        }
+
+        .help-text {
+            background: #f0f9ff;
+            border-left: 3px solid #2563eb;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+            border-radius: 4px;
+            font-size: 14px;
+            color: #1e40af;
+        }
+
+        textarea {
+            width: 100%;
+            min-height: 120px;
+            padding: 1rem;
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 14px;
+            font-family: inherit;
+            resize: vertical;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: #2563eb;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 8px;
+            margin-top: 1.5rem;
+        }
+
+        .suggestions {
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .suggestion-item {
+            background: #f5f5f5;
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            position: relative;
+        }
+
+        .suggestion-num {
+            font-size: 12px;
+            font-weight: 600;
+            color: #2563eb;
+            text-transform: uppercase;
+            margin-bottom: 0.5rem;
+        }
+
+        .suggestion-text {
+            font-size: 15px;
+            line-height: 1.6;
+        }
+
+        .copy-btn {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            padding: 0.5rem 1rem;
+            background: #2563eb;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .copy-btn:hover {
+            background: #1d4ed8;
+        }
+
+        .payment-screen {
+            max-width: 500px;
+            margin: 2rem auto;
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            border: 1px solid #e0e0e0;
+            text-align: center;
+        }
+
+        .payment-screen h2 {
+            margin-bottom: 1rem;
+        }
+
+        .payment-screen p {
+            color: #666;
+            margin-bottom: 2rem;
+        }
+
+        .logout-btn {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            padding: 0.5rem 1rem;
+            background: #ef4444;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            color: #666;
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #e0e0e0;
+            border-top-color: #2563eb;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Auth Screen -->
+        <div id="authScreen" class="auth-screen">
+            <div class="header">
+                <h1>🤖 Bot Engagement Pro</h1>
+                <p>Connectez-vous pour commencer</p>
+            </div>
+
+            <form id="authForm">
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">Mot de passe</label>
+                    <input type="password" id="password" required>
+                </div>
+                <button type="submit" class="btn" id="authBtn">Se connecter</button>
+            </form>
+
+            <div class="toggle-auth">
+                <span id="authToggleText">Pas de compte ? </span>
+                <button id="authToggle" type="button">Créer un compte</button>
+            </div>
+        </div>
+
+        <!-- App Screen -->
+        <div id="appScreen" class="app-screen">
+            <button class="logout-btn" id="logoutBtn">Déconnexion</button>
+
+            <div class="header">
+                <h1>🤖 Bot Engagement Stratégique</h1>
+                <p>Générez des suggestions intelligentes pour engager votre audience</p>
+            </div>
+
+            <!-- Payment Check -->
+            <div id="paymentScreen" class="payment-screen hidden">
+                <h2>Débloquez l'accès illimité</h2>
+                <p>Accédez à tous les modules du bot pour seulement 7€</p>
+                <button class="btn" id="payBtn">Payer 7€</button>
+                <p style="margin-top: 1.5rem; font-size: 12px; color: #999;">Ou pour tester :</p>
+                <button class="btn" id="testPayBtn" style="background: #10b981; margin-top: 0.5rem;">Accès Test</button>
+            </div>
+
+            <!-- Tabs -->
+            <div id="botInterface" class="hidden">
+                <div class="tabs">
+                    <button class="tab-btn active" data-tab="client">📝 Réponse à un post d'un futur client</button>
+                    <button class="tab-btn" data-tab="collab">🤝 Réponse en soutien de collaboration</button>
+                    <button class="tab-btn" data-tab="question">❓ Faire un commentaire avec questions</button>
+                    <button class="tab-btn" data-tab="message">💬 Répondre aux commentaires reçus</button>
+                    <button class="tab-btn" data-tab="objection">🛡️ Répondre aux objections</button>
+                    <button class="tab-btn" data-tab="image">📸 Analyser une Image</button>
+                </div>
+
+                <div class="tab-content">
+                    <div id="helpText" class="help-text"></div>
+
+                    <textarea id="input" placeholder="Copie-colle ici..."></textarea>
+                    <input type="file" id="imageInput" accept="image/*" style="display:none;">
+
+                    <div class="button-group">
+                        <button class="btn" id="generateBtn">✨ Générer les suggestions</button>
+                        <button class="btn" id="clearBtn" style="background: transparent; color: #2563eb; border: 1px solid #2563eb;">Effacer</button>
+                    </div>
+
+                    <div id="loadingDiv" class="loading hidden">
+                        <div class="spinner"></div>
+                        <p>Génération en cours...</p>
+                    </div>
+
+                    <div id="suggestionsDiv" class="suggestions hidden">
+                        <h3>Suggestions (3)</h3>
+                        <div id="suggestionsList"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Configuration
+        const API_URL = window.location.origin;
+        let currentTab = 'client';
+        let token = localStorage.getItem('token');
+        let isSignup = false;
+
+        const tabConfig = {
+            client: {
+                name: '📝 Réponse à un post d\'un futur client',
+                help: '💡 Copiez le texte du post d\'un client potentiel pour recevoir 3 commentaires intelligents.',
+                prompt: 'Génère 3 commentaires intelligents et pertinents pour engager un client potentiel.'
+            },
+            collab: {
+                name: '🤝 Réponse en soutien de collaboration',
+                help: '💡 Copiez le texte du post pour recevoir 3 commentaires de soutien authentique.',
+                prompt: 'Génère 3 commentaires de soutien authentique et constructif.'
+            },
+            question: {
+                name: '❓ Faire un commentaire avec questions',
+                help: '💡 Copiez le texte du post pour recevoir 3 questions intelligentes.',
+                prompt: 'Génère 3 questions qui montrent une véritable curiosité.'
+            },
+            message: {
+                name: '💬 Répondre aux commentaires reçus',
+                help: '💡 Copiez le commentaire pour recevoir 3 réponses engageantes.',
+                prompt: 'Génère 3 réponses authentiques et engageantes à ce commentaire.'
+            },
+            objection: {
+                name: '🛡️ Répondre aux objections',
+                help: '💡 Copiez l\'objection que tu as reçue pour obtenir 3 réponses bienveillantes et efficaces.',
+                prompt: 'Génère 3 réponses bienveillantes aux objections.'
+            },
+            image: {
+                name: '📸 Analyser une Image',
+                help: '💡 Uploadez une image pour analyser son contenu et générer 3 commentaires intelligents.',
+                prompt: 'Analyse l\'image et génère 3 commentaires.'
+            }
+        };
+
+        // DOM Elements
+        const authScreen = document.getElementById('authScreen');
+        const appScreen = document.getElementById('appScreen');
+        const authForm = document.getElementById('authForm');
+        const emailInput = document.getElementById('email');
+        const passwordInput = document.getElementById('password');
+        const authBtn = document.getElementById('authBtn');
+        const authToggle = document.getElementById('authToggle');
+        const authToggleText = document.getElementById('authToggleText');
+        const logoutBtn = document.getElementById('logoutBtn');
+        const paymentScreen = document.getElementById('paymentScreen');
+        const botInterface = document.getElementById('botInterface');
+        const tabBtns = document.querySelectorAll('.tab-btn');
+        const helpText = document.getElementById('helpText');
+        const input = document.getElementById('input');
+        const generateBtn = document.getElementById('generateBtn');
+        const clearBtn = document.getElementById('clearBtn');
+        const loadingDiv = document.getElementById('loadingDiv');
+        const suggestionsDiv = document.getElementById('suggestionsDiv');
+        const suggestionsList = document.getElementById('suggestionsList');
+
+        // Events
+        authForm.addEventListener('submit', handleAuth);
+        authToggle.addEventListener('click', toggleAuthMode);
+        logoutBtn.addEventListener('click', logout);
+        generateBtn.addEventListener('click', generateSuggestions);
+        clearBtn.addEventListener('click', clearInput);
+        document.getElementById('payBtn')?.addEventListener('click', initiatePayment);
+
+        tabBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                tabBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentTab = btn.dataset.tab;
+                const config = tabConfig[currentTab];
+                helpText.textContent = config.help;
+
+                if (currentTab === 'image') {
+                    input.style.display = 'none';
+                    document.getElementById('imageInput').style.display = 'block';
+                } else {
+                    input.style.display = 'block';
+                    document.getElementById('imageInput').style.display = 'none';
+                    input.value = '';
+                }
+
+                suggestionsDiv.classList.add('hidden');
+            });
+        });
+
+        document.getElementById('testPayBtn')?.addEventListener('click', testPayment);
+
+        // Functions
+        async function handleAuth(e) {
+            e.preventDefault();
+            const email = emailInput.value;
+            const password = passwordInput.value;
+
+            try {
+                // Essayer login d'abord
+                const response = await fetch(`${API_URL}/api/auth/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+
+                const data = await response.json();
+                if (data.token) {
+                    token = data.token;
+                    localStorage.setItem('token', token);
+                    showAppScreen();
+                } else if (data.error === 'User not found') {
+                    // Si user not found, proposer de créer un compte
+                    if (confirm('Compte non trouvé. Voulez-vous créer un compte avec cet email ?')) {
+                        const signupResponse = await fetch(`${API_URL}/api/auth/signup`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ email, password })
+                        });
+
+                        const signupData = await signupResponse.json();
+                        if (signupData.token) {
+                            token = signupData.token;
+                            localStorage.setItem('token', token);
+                            showAppScreen();
+                        } else {
+                            alert('Erreur création compte: ' + signupData.error);
+                        }
+                    }
+                } else {
+                    alert('Erreur: ' + data.error);
+                }
+            } catch (error) {
+                alert('Erreur: ' + error.message);
+            }
+        }
+
+        function toggleAuthMode() {
+            isSignup = !isSignup;
+            authBtn.textContent = isSignup ? 'Créer un compte' : 'Se connecter';
+            authToggleText.textContent = isSignup ? 'Déjà un compte ? ' : 'Pas de compte ? ';
+            authToggle.textContent = isSignup ? 'Se connecter' : 'Créer un compte';
+        }
+
+        function logout() {
+            localStorage.removeItem('token');
+            token = null;
+            authScreen.style.display = 'block';
+            appScreen.style.display = 'none';
+            authForm.reset();
+        }
+
+        function showAppScreen() {
+            authScreen.style.display = 'none';
+            appScreen.style.display = 'block';
+            const config = tabConfig[currentTab];
+            helpText.textContent = config.help;
+            checkPaymentStatus();
+        }
+
+        async function checkPaymentStatus() {
+            try {
+                const response = await fetch(`${API_URL}/api/user/status`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await response.json();
+                if (data.paid) {
+                    paymentScreen.classList.add('hidden');
+                    botInterface.classList.remove('hidden');
+                } else {
+                    paymentScreen.classList.remove('hidden');
+                    botInterface.classList.add('hidden');
+                }
+            } catch (error) {
+                console.error('Error checking payment:', error);
+            }
+        }
+
+        async function initiatePayment() {
+            try {
+                const response = await fetch(`${API_URL}/api/payment/checkout`, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const { sessionId } = await response.json();
+                const stripe = Stripe('pk_live_51QF3S9BrSKOoSscMyt4SOPFHpDg9hYsIiinAaZlTq2t7eQiGt0KLax4zWa4XpzRHEwiwbPR8hUR5AYyD2cVGeV3x00J36i77PJ');
+                stripe.redirectToCheckout({ sessionId });
+            } catch (error) {
+                alert('Erreur: ' + error.message);
+            }
+        }
+
+        async function testPayment() {
+            try {
+                const response = await fetch(`${API_URL}/api/payment/test-pay`, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await response.json();
+                alert('✅ ' + data.message);
+                checkPaymentStatus();
+            } catch (error) {
+                alert('Erreur: ' + error.message);
+            }
+        }
+
+        async function generateSuggestions() {
+            if (currentTab === 'image') {
+                // Handle image upload
+                const file = document.getElementById('imageInput').files[0];
+                if (!file) {
+                    alert('Veuillez sélectionner une image');
+                    return;
+                }
+
+                loadingDiv.classList.remove('hidden');
+                suggestionsDiv.classList.add('hidden');
+
+                try {
+                    const reader = new FileReader();
+                    reader.onload = async (e) => {
+                        const base64 = e.target.result.split(',')[1];
+                        const response = await fetch(`${API_URL}/api/bot/analyze-image`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Authorization': `Bearer ${token}`
+                            },
+                            body: JSON.stringify({
+                                imageBase64: base64
+                            })
+                        });
+
+                        const data = await response.json();
+                        if (data.suggestions) {
+                            displaySuggestions(data.suggestions);
+                        } else {
+                            alert('Erreur: ' + data.error);
+                        }
+                        loadingDiv.classList.add('hidden');
+                    };
+                    reader.readAsDataURL(file);
+                } catch (error) {
+                    alert('Erreur: ' + error.message);
+                    loadingDiv.classList.add('hidden');
+                }
+            } else {
+                // Handle text input
+                if (!input.value.trim()) {
+                    alert('Veuillez copier-coller du contenu');
+                    return;
+                }
+
+                loadingDiv.classList.remove('hidden');
+                suggestionsDiv.classList.add('hidden');
+
+                try {
+                    const response = await fetch(`${API_URL}/api/bot/generate`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}`
+                        },
+                        body: JSON.stringify({
+                            module: currentTab,
+                            content: input.value
+                        })
+                    });
+
+                    const data = await response.json();
+                    displaySuggestions(data.suggestions);
+                } catch (error) {
+                    alert('Erreur: ' + error.message);
+                } finally {
+                    loadingDiv.classList.add('hidden');
+                }
+            }
+        }
+
+        function displaySuggestions(text) {
+            const lines = text.split('\n').filter(l => l.trim());
+            const suggestions = [];
+            let current = '';
+
+            lines.forEach(line => {
+                if (/^\d+\./.test(line)) {
+                    if (current) suggestions.push(current.trim());
+                    current = line.replace(/^\d+\.\s*/, '');
+                } else if (line.trim()) {
+                    current += ' ' + line;
+                }
+            });
+
+            if (current) suggestions.push(current.trim());
+
+            suggestionsList.innerHTML = suggestions.slice(0, 3).map((sugg, i) => `
+                <div class="suggestion-item">
+                    <div class="suggestion-num">Option ${i + 1}</div>
+                    <p class="suggestion-text">${sugg}</p>
+                    <button class="copy-btn" onclick="copySuggestion('${sugg.replace(/'/g, "\\'")}')">Copier</button>
+                </div>
+            `).join('');
+
+            suggestionsDiv.classList.remove('hidden');
+        }
+
+        function clearInput() {
+            input.value = '';
+            suggestionsDiv.classList.add('hidden');
+        }
+
+        function copySuggestion(text) {
+            navigator.clipboard.writeText(text);
+            alert('Copié !');
+        }
+
+        // Initialize
+        if (token) {
+            showAppScreen();
+        } else {
+            authScreen.style.display = 'block';
+            appScreen.style.display = 'none';
+        }
+    </script>
+</body>
+</html>
