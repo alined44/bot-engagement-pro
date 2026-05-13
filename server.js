@@ -160,7 +160,7 @@ app.get('/api/user/status', authenticateToken, (req, res) => {
 
 // ============ BOT ROUTES ============
 
-// Generate suggestions (6 modules)
+// Generate suggestions (4 modules)
 app.post('/api/bot/generate', authenticateToken, async (req, res) => {
   const { module, content } = req.body;
 
@@ -172,19 +172,19 @@ app.post('/api/bot/generate', authenticateToken, async (req, res) => {
 
     try {
       const prompts = {
-        client: 'Tu es un expert en conversation authentique. Génère 3 commentaires qui NE sont PAS des compliments génériques. Au lieu de "tu as bien dit X", analyse PROFONDÉMENT ce que le post implique, identifie une tension ou une nuance que peu voient, et partage une OBSERVATION PERSONNELLE. Chaque commentaire doit: (1) montrer que tu as COMPRIS le vrai problème derrière le post, (2) ajouter une perspective ou détail nouveau que l\'auteur n\'a pas mentionné mais qui est VRAI, (3) être spécifique et concret (pas juste "c\'est inspirant"), (4) prolonger la réflexion. Ton: penseur, empathique, naturel. 2-4 phrases.',
-        collab: 'Génère 3 commentaires de soutien PROFOND (pas juste "merci pour ces paroles"). Chaque commentaire doit: (1) citer un DÉTAIL SPÉCIFIQUE du post qui résonne, (2) nommer l\'ÉMOTION ou la RÉALITÉ sous-jacente (ex: "la solitude derrière le succès"), (3) partager une VÉRITÉ CONNEXE que le post a déverrouillée pour toi, (4) terminer par une OBSERVATION qui élève le débat. Montre une vulnérabilité authentique. 3-5 phrases. Ton: réfléchi, honnête, sensible.',
-        question: 'Génère 3 questions qui ne sont PAS basiques. Pose des questions qui: (1) révèlent que tu as PERÇU une TENSION ou une LIMITE dans ce qu\'il/elle dit, (2) viennent d\'une curiosité RÉELLE, presque intime (ce que tu aimerais vraiment savoir), (3) ouvrent une nouvelle dimension du sujet, (4) montrent que tu as réfléchi APRÈS avoir lu. Exemple: "J\'ai remarqué que tu parles de X mais pas de Y... c\'est volontaire?" Une question simple et directe. Ton: curieux, respectueux, penseur.',
-        message: 'Génère 3 réponses qui PROLONGENT vraiment la conversation. Chaque réponse doit: (1) citer la personne avec une OBSERVATION spécifique (pas juste "merci"), (2) ajouter une INFORMATION, NUANCE ou EXEMPLE nouveau que seul tu peux ajouter, (3) poser une question qui APPROFONDIT (quelque chose de ciblé, pas générique), (4) créer une vraie CONNEXION émotionnelle. Ton: direct, penseur, montrer que tu as vraiment réfléchi. 3-4 phrases.',
-        objection: 'Tu es un expert qui comprend VRAIMENT le doute. Génère 3 réponses qui valident AVANT de proposer. Chaque réponse: (1) nomme EXACTEMENT pourquoi l\'objection est LÉGITIME, (2) ajoute une NUANCE qui montre que c\'est plus complexe, (3) partage une DONNÉE, EXEMPLE ou EXPÉRIENCE qui éclaire autrement, (4) laisse la porte ouverte sans forcer. Ton: respectueux de la peur, honnête, bienveillant. 3-5 phrases. Pas de "mais".',
+        client: 'ANGLE CRITIQUE. Génère 3 observations sur ce que CE CONTENU pose comme problème ou question. Format ultra-minimaliste (1-2 phrases chacune):\n1. [Un point faible ou une tension logique dans l\'argument]\n2. [Une question que cela soulève]\n3. [Une implication non mentionnée]\nTon: analytique, pas personal. Pas de "je pense", juste l\'observation du sujet.',
+        collab: 'ANGLE COMPLÉMENTAIRE. Génère 3 observations sur ce que CE CONTENU oublie ou pourrait enrichir. Format ultra-minimaliste (1-2 phrases chacune):\n1. [Une perspective qui enrichit l\'argument]\n2. [Un exemple ou contexte pertinent]\n3. [Une implication positive]\nTon: constructif, analytique. Pas d\'empathie personnelle, de l\'ajout de valeur au sujet.',
+        question: 'ANGLE QUESTIONNAIRE. Pose 3 questions qui révèlent une compréhension PROFONDE du sujet. Format ultra-minimaliste, une par ligne:\n1. "Quand tu dis X, signifies-tu vraiment Y?" ou "Est-ce que cela implique Z?"\n2. "Comment cela se reconcile avec...?"\n3. "Qu\'est-ce que cela suppose sur...?"\nTon: curieux, penseur. Pas de pronoms personnels, juste l\'exploration du sujet.',
+        message: 'ANGLE OBSERVATIONNEL. Génère 3 observations clés sur CE CONTENU. Format ultra-minimaliste (1-2 phrases chacune):\n1. [Ce que cela révèle sur le sujet]\n2. [Un détail spécifique qui en dit long]\n3. [Une logique ou pattern que cela expose]\nTon: observateur, lucide. Analyse du contenu, pas de réaction personnelle.',
+        objection: 'ANGLE DE NUANCE. Génère 3 observations qui complexifient ou nuancent l\'argument. Format ultra-minimaliste (1-2 phrases chacune):\n1. [Pourquoi ce point est valide, ET ce qu\'il omet]\n2. [Un contexte qui change la perspective]\n3. [Une exception ou limite importante]\nTon: respectueux, nuancé. Pas de personnalisation, juste de l\'analyse réfléchie.',
       };
 
       const response = await openai.chat.completions.create({
-        model: 'gpt-3.5-turbo',
+        model: 'gpt-4o',
         messages: [
           {
             role: 'system',
-            content: 'Tu es un expert en engagement sur les réseaux sociaux. Génère des suggestions courtes, pertinentes et authentiques. Chaque suggestion doit être numérotée (1., 2., 3.). Réponds UNIQUEMENT avec les 3 suggestions numérotées, sans autre texte.',
+            content: 'Tu es un penseur analytique. Génère 3 observations courtes, directes et factuelles. Chaque observation numérotée (1., 2., 3.) et ultra-minimaliste (1-2 phrases). Pas d\'empathie personnelle, juste de l\'analyse du sujet. Réponds UNIQUEMENT avec les 3 observations numérotées, sans autre texte.',
           },
           {
             role: 'user',
@@ -242,15 +242,15 @@ app.post('/api/bot/analyze-image', authenticateToken, async (req, res) => {
 
       // Generate comments based on image analysis
       const response = await openai.chat.completions.create({
-        model: 'gpt-3.5-turbo',
+        model: 'gpt-4o',
         messages: [
           {
             role: 'system',
-            content: 'Tu es un expert en engagement sur les réseaux sociaux. Génère 3 commentaires authentiques, pertinents et engageants basés sur le contenu. Chaque commentaire doit être numéroté (1., 2., 3.). Réponds UNIQUEMENT avec les 3 commentaires numérotés, sans autre texte.',
+            content: 'Tu es un penseur analytique. Analyse l\'image de façon objective et perspicace. Génère 3 observations numérotées (1., 2., 3.), ultra-minimalistes (1-2 phrases chacune). Pas de compliments personnels ni d\'empathie, juste de l\'analyse visuelle et sémantique. Réponds UNIQUEMENT avec les 3 observations numérotées, sans autre texte.',
           },
           {
             role: 'user',
-            content: `Voici une analyse du contenu : ${imageDescription}\n\nGénère 3 commentaires PREMIUM qui: (1) montrent que tu as COMPRIS l'intention/le message derrière l'image, (2) identifient un DÉTAIL spécifique (couleur, composition, choix) qui révèle quelque chose, (3) ajoutent une PERSPECTIVE ou SENTIMENT que l'image provoque (pas juste "c'est beau"), (4) créent une CONNEXION émotionnelle authentique avec le créateur. Ton: observateur, sensible, penseur. 2-4 phrases chacun.`,
+            content: `Voici une analyse du contenu : ${imageDescription}\n\nGénère 3 observations analytiques sur CETTE IMAGE:\n1. Qu\'est-ce que le choix visuel (composition, couleur, style) communique?\n2. Qu\'est-ce que cela révèle sur l\'intention du créateur?\n3. Qu\'est-ce que cela suscite comme réflexion ou question chez le spectateur?\nUltra-court, direct, analytique.`,
           },
         ],
         temperature: 0.7,
@@ -268,7 +268,7 @@ app.post('/api/bot/analyze-image', authenticateToken, async (req, res) => {
 // ============ START SERVER ============
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, '0.0.0.0', () => {
+app.listen(PORT,'0.0.0.0',  () => {
   console.log(`Server running on port ${PORT}`);
   console.log(`Environment: ${process.env.NODE_ENV}`);
 });
