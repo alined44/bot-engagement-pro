@@ -172,11 +172,11 @@ app.post('/api/bot/generate', authenticateToken, async (req, res) => {
 
     try {
       const prompts = {
-        client: 'TU ES UN ALLIÉ qui développe l\'idée en la challengeant légèrement. Génère 3 commentaires (2-3 phrases chacun). Langage simple, comme tu parles à un ami.\nChaque commentaire:\n1. Montre que tu as COMPRIS l\'idée centrale\n2. Ajoute UN angle nouveau ou une question qui creuse\n3. Soutiens-la finalement\nExemple pour "Les femmes survivent plutôt que vivent":\n"Ouais ce truc de survivre vs vivre m\'a frappé. Genre on dit qu\'on est fortes mais en réalité on tient à peine. C\'est quoi pour toi la différence entre les deux? Parce que c\'est vrai que beaucoup de femmes vivent comme ça et personne ne parle vraiment du prix."\nTon: Conversationnel. Pas de jargon. Pas de compliments vides.',
-        collab: 'TU DÉVELOPPES L\'IDÉE en la renforçant avec des exemples ou des angles. Génère 3 commentaires (2-3 phrases chacun).\nChaque commentaire:\n1. Valide ce que tu as lu\n2. Ajoute UNE perspective ou UN exemple concret\n3. Renforce le message\nExemple:\n"T\'as raison, et en plus je vois ça partout - les femmes qui disent \'je vais bien\' alors qu\'elles sont complètement vides. J\'aime comment tu mets le doigt dessus. Je pense que si plus de gens comprenaient ce décalage, pas mal de choses changeraient."\nTon: Authentique. Supporteur. Pas de jargon.',
-        question: 'POSE 3 QUESTIONS qui développent la réflexion. Format simple (une par ligne).\nChaque question:\n1. Montre que tu as compris\n2. Creuse plus profond\n3. Invite à réfléchir ensemble\nExemple:\n"Est-ce que c\'est la même survie partout ou ça dépend des contextes? Parce que je me demande si tout le monde vit ça de la même manière. Et du coup, comment on sort de ce mode-là? Y\'a des femmes qui l\'ont fait?"\nTon: Curieux. Pas condescendant. Authentique.',
-        message: 'PROLONGE LA CONVERSATION en ajoutant une vraie contribution. Génère 3 commentaires (2-3 phrases chacun).\nChaque commentaire:\n1. Montre que tu as vraiment lu\n2. Ajoute UN détail, exemple ou observation nouvelle\n3. Ouvre la conversation\nExemple:\n"Ce détail sur le vide intérieur malgré la force extérieure c\'est exactement ce que personne ose dire. J\'ajouterais qu\'en plus y\'a une culpabilité derrière - comme si reconnaître qu\'on survient c\'était accepter qu\'on a échoué. Mais en réalité c\'est juste la réalité."\nTon: Penseur. Simple. Authentique.',
-        objection: 'VALIDE PUIS APPROFONDIS. Génère 3 commentaires (2-3 phrases chacun).\nChaque commentaire:\n1. Reconnaît la validité du point\n2. Ajoute UNE nuance ou UN contexte\n3. Ouvre une nouvelle perspective\nExemple:\n"C\'est vrai que beaucoup vivent comme ça. Et en même temps je me demande - c\'est une fatalité ou c\'est quelque chose qu\'on peut vraiment changer? Parce que si on comprend d\'où ça vient, peut-être qu\'on peut agir différemment."\nTon: Respectueux. Constructif. Pas de "mais" qui tue.',
+        client: 'Développe l\'idée avec un angle nouveau. Génère 3 commentaires courts (2-3 phrases). Langage simple et authentique comme une vraie personne.',
+        collab: 'Renforce l\'idée avec des exemples. Génère 3 commentaires courts (2-3 phrases). Authentique et conversationnel.',
+        question: 'Pose 3 questions qui creusent l\'idée. Une par ligne. Simple et curieux.',
+        message: 'Prolonge la conversation. Génère 3 commentaires courts (2-3 phrases). Ajoute une vraie observation.',
+        objection: 'Valide puis approfondis. Génère 3 commentaires courts (2-3 phrases). Respectueux et constructif.',
       };
 
       const response = await openai.chat.completions.create({
@@ -246,4 +246,30 @@ app.post('/api/bot/analyze-image', authenticateToken, async (req, res) => {
         messages: [
           {
             role: 'system',
-            content: 'Tu es un ami qui répond à une image. Génère 3 commentaires (2-3 phrases chacun) qui montrent que tu as VU l\'image et ce qu\'elle communique. Langage simple et authentique. Parle de c
+            content: 'Tu es un ami qui répond à une image. Génère 3 commentaires (2-3 phrases chacun) qui montrent que tu as VU l\'image et ce qu\'elle communique. Langage simple et authentique. Parle de ce que ça te fait, ce que tu vois, ce que ça dit. Pas d\'analyse froide. Pas de jargon.',
+          },
+          {
+            role: 'user',
+            content: `Image: ${imageDescription}\n\nGénère 3 commentaires authentiques sur cette image (2-3 phrases chacun).\nChaque commentaire:\n1. Montre que tu as vu et compris ce que l\'image communique\n2. Ajoute ce que ça te fait ou une observation personnelle\n3. Ouvre la conversation\n\nExemple pour une image sombre:\n"L\'ambiance de cette image c\'est heavy. Les couleurs sombres et la composition bizarre créent quelque chose de vraiment puissant. Je me demande ce que tu voulais exprimer - c\'est sur la transformation, la douleur, ou juste ce vide qu\'on ressent parfois?"`,
+          },
+        ],
+        temperature: 0.7,
+        max_tokens: 800,
+      });
+
+      const suggestions = response.choices[0].message.content;
+      res.json({ suggestions });
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+});
+
+// ============ START SERVER ============
+
+const PORT = process.env.PORT || 3000;
+app.listen(PORT,'0.0.0.0',  () => {
+  console.log(`Server running on port ${PORT}`);
+  console.log(`Environment: ${process.env.NODE_ENV}`);
+});
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    
