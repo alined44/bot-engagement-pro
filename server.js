@@ -172,11 +172,11 @@ app.post('/api/bot/generate', authenticateToken, async (req, res) => {
 
     try {
       const prompts = {
-        client: 'ANGLE CRITIQUE. Génère 3 observations sur ce que CE CONTENU pose comme problème ou question. Format ultra-minimaliste (1-2 phrases chacune):\n1. [Un point faible ou une tension logique dans l\'argument]\n2. [Une question que cela soulève]\n3. [Une implication non mentionnée]\nTon: analytique, pas personal. Pas de "je pense", juste l\'observation du sujet.',
-        collab: 'ANGLE COMPLÉMENTAIRE. Génère 3 observations sur ce que CE CONTENU oublie ou pourrait enrichir. Format ultra-minimaliste (1-2 phrases chacune):\n1. [Une perspective qui enrichit l\'argument]\n2. [Un exemple ou contexte pertinent]\n3. [Une implication positive]\nTon: constructif, analytique. Pas d\'empathie personnelle, de l\'ajout de valeur au sujet.',
-        question: 'ANGLE QUESTIONNAIRE. Pose 3 questions qui révèlent une compréhension PROFONDE du sujet. Format ultra-minimaliste, une par ligne:\n1. "Quand tu dis X, signifies-tu vraiment Y?" ou "Est-ce que cela implique Z?"\n2. "Comment cela se reconcile avec...?"\n3. "Qu\'est-ce que cela suppose sur...?"\nTon: curieux, penseur. Pas de pronoms personnels, juste l\'exploration du sujet.',
-        message: 'ANGLE OBSERVATIONNEL. Génère 3 observations clés sur CE CONTENU. Format ultra-minimaliste (1-2 phrases chacune):\n1. [Ce que cela révèle sur le sujet]\n2. [Un détail spécifique qui en dit long]\n3. [Une logique ou pattern que cela expose]\nTon: observateur, lucide. Analyse du contenu, pas de réaction personnelle.',
-        objection: 'ANGLE DE NUANCE. Génère 3 observations qui complexifient ou nuancent l\'argument. Format ultra-minimaliste (1-2 phrases chacune):\n1. [Pourquoi ce point est valide, ET ce qu\'il omet]\n2. [Un contexte qui change la perspective]\n3. [Une exception ou limite importante]\nTon: respectueux, nuancé. Pas de personnalisation, juste de l\'analyse réfléchie.',
+        client: 'Génère 3 observations PRÉCISES (max 1 phrase chacune). Format EXACT:\n1. TENSION: [Nomme UNE contradiction ou faiblesse logique SPÉCIFIQUE dans l\'argument]\n2. QUESTION: [Une seule question qui expose ce qui manque]\n3. IMPLICATION: [Une conséquence NON mentionnée par l\'auteur]\nExemple pour "Les femmes survivent plutôt que vivent":\n1. TENSION: Si survivre est la réalité, comment définir "vivre" concrètement?\n2. QUESTION: Qui bénéficie de ce status quo de survie?\n3. IMPLICATION: Changer cela nécessite des transformations structurelles, pas personnelles.\nZéro empathie personnelle. Juste observation analytique.',
+        collab: 'Génère 3 observations qui COMPLÈTENT l\'argument (max 1 phrase chacune). Format EXACT:\n1. PERSPECTIVE OUBLIÉE: [Une facette du sujet que l\'auteur n\'a pas nommée]\n2. EXEMPLE PERTINENT: [Un cas réel ou contexte qui renforce l\'argument]\n3. IMPLICATION POSITIVE: [Ce que cette vérité pourrait transformer]\nExemple:\n1. PERSPECTIVE OUBLIÉE: Le coût économique réel du silence (productivité perdue, santé dégradée).\n2. EXEMPLE: Les données montrent que les femmes qui parlent de leur épuisement recréent des communautés.\n3. IMPLICATION: Nommer le problème est le premier acte de reconstruction.\nPas de "ça m\'a touché". Analyse pure.',
+        question: 'Génère 3 questions PRÉCISES (max une ligne chacune). Format EXACT:\n1. "Quand tu dis X, signifies-tu que Y est impossible?"\n2. "Quel événement concret a changé ta perception de cela?"\n3. "Si Y était différent, comment changerait X?"\nExemple:\n1. "Quand tu dis survie, signifies-tu que la joie est impossible?"\n2. "Quel moment a révélé ce décalage entre force et épuisement?"\n3. "Si les structures reconnaissaient l\'épuisement, comment les femmes vivraient différemment?"\nZéro pronoms personnels (je, me, moi).',
+        message: 'Génère 3 observations du CONTENU (max 1 phrase chacune). Format EXACT:\n1. RÉVÉLATION: [Ce détail spécifique du message expose quelle réalité]\n2. LOGIQUE SOUS-JACENTE: [Quel système ou pattern cela révèle]\n3. QUESTION GÉNÉRÉE: [Quelle interrogation légitime émerge]\nExemple:\n1. RÉVÉLATION: Le mot "survivre" vs "vivre" expose que la femme ne vit pas.\n2. LOGIQUE: Un système demande la force mais consomme l\'énergie vitale.\n3. QUESTION: Comment inverser ce calcul?\nAnalyse du sujet, pas de la personne.',
+        objection: 'Génère 3 observations qui NUANCENT (max 1 phrase chacune). Format EXACT:\n1. VALIDITÉ: [Nomme PRÉCISÉMENT pourquoi cette objection est légitime]\n2. CONTEXTE CACHÉ: [Quel facteur complexifie la situation]\n3. LIMITE: [Qu\'est-ce que cette vérité omet]\nExemple:\n1. VALIDITÉ: C\'est vrai - beaucoup de femmes vivent exactement ainsi.\n2. CONTEXTE: Mais certaines structures rendent cette survie nécessaire pour exister socialement.\n3. LIMITE: Il existe aussi des chemins alternatifs moins visibles.\nRespect analytique, pas de patronage.',
       };
 
       const response = await openai.chat.completions.create({
@@ -184,7 +184,7 @@ app.post('/api/bot/generate', authenticateToken, async (req, res) => {
         messages: [
           {
             role: 'system',
-            content: 'Tu es un penseur analytique. Génère 3 observations courtes, directes et factuelles. Chaque observation numérotée (1., 2., 3.) et ultra-minimaliste (1-2 phrases). Pas d\'empathie personnelle, juste de l\'analyse du sujet. Réponds UNIQUEMENT avec les 3 observations numérotées, sans autre texte.',
+            content: 'Tu es un analyste qui respecte EXACTEMENT les formats donnés. Rien d\'autre. Pas de préambule. Pas de conclusion. Juste les sections numérotées EXACTEMENT comme demandé. Chaque section: MAX 1 phrase. ZERO pronoms personnels (je, me, moi, mon). ZERO empathie. Analyse pure du sujet.',
           },
           {
             role: 'user',
@@ -246,29 +246,4 @@ app.post('/api/bot/analyze-image', authenticateToken, async (req, res) => {
         messages: [
           {
             role: 'system',
-            content: 'Tu es un penseur analytique. Analyse l\'image de façon objective et perspicace. Génère 3 observations numérotées (1., 2., 3.), ultra-minimalistes (1-2 phrases chacune). Pas de compliments personnels ni d\'empathie, juste de l\'analyse visuelle et sémantique. Réponds UNIQUEMENT avec les 3 observations numérotées, sans autre texte.',
-          },
-          {
-            role: 'user',
-            content: `Voici une analyse du contenu : ${imageDescription}\n\nGénère 3 observations analytiques sur CETTE IMAGE:\n1. Qu\'est-ce que le choix visuel (composition, couleur, style) communique?\n2. Qu\'est-ce que cela révèle sur l\'intention du créateur?\n3. Qu\'est-ce que cela suscite comme réflexion ou question chez le spectateur?\nUltra-court, direct, analytique.`,
-          },
-        ],
-        temperature: 0.7,
-        max_tokens: 800,
-      });
-
-      const suggestions = response.choices[0].message.content;
-      res.json({ suggestions });
-    } catch (error) {
-      res.status(500).json({ error: error.message });
-    }
-  });
-});
-
-// ============ START SERVER ============
-
-const PORT = process.env.PORT || 3000;
-app.listen(PORT,'0.0.0.0',  () => {
-  console.log(`Server running on port ${PORT}`);
-  console.log(`Environment: ${process.env.NODE_ENV}`);
-});
+            content: 'Analyste visuel strict. Respecte EXACTEMENT le format. Pas de préambule. Pas de conclusion. Juste les 3 sections. Chaque section: MAX 1 phrase. ZERO empathie.
